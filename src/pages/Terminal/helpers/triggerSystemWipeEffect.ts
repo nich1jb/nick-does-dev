@@ -58,6 +58,6 @@ export const triggerSystemWipeEffect = () => {
   }, 3100);
 
   window.setTimeout(() => {
-    window.location.href = "/404";
+    window.location.href = "/#/404";
   }, 4300);
 };
