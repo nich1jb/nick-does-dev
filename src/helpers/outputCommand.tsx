@@ -7,11 +7,7 @@ import { getRepositoryFileContents } from "./getRepositoryFileContents";
 import { getRepositoryTree } from "./getRepositoryTree";
 import { triggerSystemWipeEffect } from "./triggerSystemWipeEffect";
 
-export const outputCommand = async (
-  cmd: string,
-  command: string,
-  setHistory: React.Dispatch<React.SetStateAction<any[]>>,
-) => {
+export const outputCommand = async (cmd: string, command: string) => {
   switch (cmd) {
     case "help":
       return [
@@ -54,7 +50,6 @@ export const outputCommand = async (
       }
     }
     case "clear":
-      setHistory([]);
       return "";
     case "rm -rf /":
       triggerSystemWipeEffect();

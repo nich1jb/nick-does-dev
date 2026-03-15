@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, isValidElement } from "react";
 import ScanlinesOverlay from "../../components/ScanlinesOverlay";
 import {
+  CommandLine,
   History,
+  PromptText,
   TerminalContent,
   TerminalInput,
   TerminalLine,
@@ -15,7 +17,9 @@ export const TerminalPage = () => {
   >([]);
   const [currentInput, setCurrentInput] = useState("");
   const [isAwaitingCommand, setIsAwaitingCommand] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLSpanElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const promptLabel = `user@${window.location.hostname}:~$${"\u00A0"}`; // non-breaking space
 
   useEffect(() => {
     if (!isAwaitingCommand && inputRef.current) {
@@ -25,33 +29,41 @@ export const TerminalPage = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [history]);
+  }, [history, isAwaitingCommand]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === "Enter" && !isAwaitingCommand) {
-      void executeCommand(currentInput);
+      e.preventDefault();
+      executeCommand(currentInput);
+      if (inputRef.current) {
+        inputRef.current.textContent = "";
+      }
       setCurrentInput("");
     }
   };
 
+  const handleInput = (e: React.FormEvent<HTMLSpanElement>) => {
+    setCurrentInput(e.currentTarget.textContent ?? "");
+  };
+
   const scrollToBottom = () => {
-    if (inputRef.current) {
-      inputRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
   };
 
   const executeCommand = async (command: string) => {
     const cmd = command.trim().toLowerCase();
-    const prompt = `user@${window.location.hostname}:~$ ${command}`;
+    const prompt = `${promptLabel}${command}`;
 
     setHistory((previousHistory) => [...previousHistory, prompt]);
-
     setIsAwaitingCommand(true);
 
     try {
-      const output = await outputCommand(cmd, command, setHistory);
+      const output = await outputCommand(cmd, command);
 
       if (cmd === "clear") {
+        setHistory([]);
         return;
       }
 
@@ -85,19 +97,21 @@ export const TerminalPage = () => {
           ))}
         </History>
         {!isAwaitingCommand && (
-          <>
-            <span>user@{window.location.hostname}:~$&nbsp;</span>
+          <CommandLine>
+            <PromptText>{promptLabel}</PromptText>
             <TerminalInput
               ref={inputRef}
-              type="text"
-              value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
+              contentEditable
+              suppressContentEditableWarning
+              role="textbox"
+              aria-label="Terminal command input"
+              onInput={handleInput}
               onKeyDown={handleKeyDown}
-              autoComplete="off"
-              spellCheck="false"
+              spellCheck={false}
             />
-          </>
+          </CommandLine>
         )}
+        <div ref={bottomRef} />
       </TerminalContent>
     </TerminalWrapper>
   );
