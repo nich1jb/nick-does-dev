@@ -98,7 +98,8 @@ export const TerminalPage = () => {
       <ScanlinesOverlay />
       <TerminalContent>
         Hey I'm Nick. Welcome to my terminal! Type 'whoami' for some information
-        about me. Additionally, type 'help' for a list of commands.
+        about me. Additionally, type 'help' for a list of commands. TEST TEST
+        TEST
         <History>
           {history.map((line, index) => (
             <div key={index}>{renderLineContent(line)}</div>
