@@ -55,21 +55,20 @@ export const TerminalPage = () => {
     });
   };
 
-  const executeCommand = async (command: string) => {
-    const cmd = command.trim().toLowerCase();
-    const prompt = `${promptLabel}${command}`;
+  const executeCommand = async (commandInput: string) => {
+    const prompt = `${promptLabel}${commandInput}`;
 
     setHistory((previousHistory) => [...previousHistory, prompt]);
     setIsAwaitingCommand(true);
 
     try {
-      const result = await outputCommand(cmd, command, currentDirectory);
+      const result = await outputCommand(commandInput, currentDirectory);
 
       if (result.nextDirectory !== undefined) {
         setCurrentDirectory(result.nextDirectory);
       }
 
-      if (cmd === "clear") {
+      if (commandInput.trim().toLowerCase() === "clear") {
         setHistory([]);
         return;
       }

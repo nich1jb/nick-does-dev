@@ -33,11 +33,11 @@ export const getRepositoryTree = async (path = "") => {
 
   return payload
     .map((entry) => {
-      if (!entry.name) {
-        return null;
+      if (entry.name) {
+        return entry.type === "dir" ? `${entry.name}/` : entry.name;
       }
 
-      return entry.type === "dir" ? `${entry.name}/` : entry.name;
+      return null;
     })
     .filter((entry): entry is string => entry !== null)
     .sort((left, right) => left.localeCompare(right));

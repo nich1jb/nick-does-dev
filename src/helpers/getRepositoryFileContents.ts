@@ -1,9 +1,3 @@
-type GitHubContentResponse = {
-  type?: "file" | "dir";
-  content?: string;
-  encoding?: "base64" | string;
-};
-
 const REPOSITORY_CONTENT_URL =
   "https://api.github.com/repos/nich1jb/nick-does-dev/contents";
 
@@ -26,9 +20,9 @@ export const getRepositoryFileContents = async (path: string) => {
     throw new Error(`GitHub request failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as GitHubContentResponse;
+  const payload = await response.json();
 
-  if (payload.type === "dir") {
+  if (Array.isArray(payload)) {
     return `cat: ${normalizedPath}: Is a directory`;
   }
 
