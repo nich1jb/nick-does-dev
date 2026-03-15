@@ -11,6 +11,7 @@ import {
   TerminalWrapper,
 } from "./terminal.styles";
 import { outputCommand } from "../../helpers/outputCommand";
+import { toDisplayPath } from "../../helpers/toDisplayPath";
 
 export const TerminalPage = () => {
   const [history, setHistory] = useState<
@@ -18,9 +19,10 @@ export const TerminalPage = () => {
   >([]);
   const [currentInput, setCurrentInput] = useState("");
   const [isAwaitingCommand, setIsAwaitingCommand] = useState(false);
+  const [currentDirectory, setCurrentDirectory] = useState("");
   const inputRef = useRef<HTMLSpanElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const promptLabel = `user@${window.location.hostname}:~$${"\u00A0"}`; // non-breaking space
+  const promptLabel = `user@${window.location.hostname}:${toDisplayPath(currentDirectory)}$${"\u00A0"}`; // non-breaking space
 
   useEffect(() => {
     if (!isAwaitingCommand && inputRef.current) {
@@ -61,14 +63,20 @@ export const TerminalPage = () => {
     setIsAwaitingCommand(true);
 
     try {
-      const output = await outputCommand(cmd, command);
+      const result = await outputCommand(cmd, command, currentDirectory);
+
+      if (result.nextDirectory !== undefined) {
+        setCurrentDirectory(result.nextDirectory);
+      }
 
       if (cmd === "clear") {
         setHistory([]);
         return;
       }
 
-      setHistory((previousHistory) => [...previousHistory, output]);
+      if (result.output !== "") {
+        setHistory((previousHistory) => [...previousHistory, result.output]);
+      }
     } finally {
       setIsAwaitingCommand(false);
     }

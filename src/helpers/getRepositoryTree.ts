@@ -1,53 +1,44 @@
-type GitHubTreeEntry = {
-  path: string;
-  type: "blob" | "tree";
+type GitHubContentEntry = {
+  type?: "file" | "dir";
+  name?: string;
 };
 
-type GitHubTreeResponse = {
-  tree?: GitHubTreeEntry[];
-  truncated?: boolean;
-};
+type GitHubContentsResponse = GitHubContentEntry | GitHubContentEntry[];
 
-const REPOSITORY_TREE_URL =
-  "https://api.github.com/repos/nich1jb/nick-does-dev/git/trees/main?recursive=1";
+const REPOSITORY_CONTENT_URL =
+  "https://api.github.com/repos/nich1jb/nick-does-dev/contents";
 
-const getTopLevelEntry = ({ path, type }: GitHubTreeEntry) => {
-  const [topLevelSegment] = path.split("/").filter(Boolean);
+export const getRepositoryTree = async (path = "") => {
+  const normalizedPath = path.trim().replace(/^\.\//, "").replace(/^\//, "");
+  const targetPath = normalizedPath ? `/${normalizedPath}` : "";
+  const response = await fetch(
+    `${REPOSITORY_CONTENT_URL}${targetPath}?ref=main`,
+  );
 
-  if (!topLevelSegment) {
-    return null;
+  if (response.status === 404) {
+    const displayPath = normalizedPath || "/";
+    throw new Error(`${displayPath}: No such file or directory`);
   }
-
-  const isDirectory = type === "tree" || path.includes("/");
-
-  return isDirectory ? `${topLevelSegment}/` : topLevelSegment;
-};
-
-const isTopLevelEntry = (entry: string | null): entry is string =>
-  entry !== null;
-
-export const getRepositoryTree = async () => {
-  const response = await fetch(REPOSITORY_TREE_URL);
 
   if (!response.ok) {
     throw new Error(`GitHub request failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as GitHubTreeResponse;
+  const payload = (await response.json()) as GitHubContentsResponse;
 
-  if (!payload.tree) {
-    throw new Error("GitHub response did not include a repository tree.");
+  if (!Array.isArray(payload)) {
+    const displayPath = normalizedPath || "/";
+    throw new Error(`${displayPath}: Not a directory`);
   }
 
-  const lines = [
-    ...[
-      ...new Set(payload.tree.map(getTopLevelEntry).filter(isTopLevelEntry)),
-    ].sort((left, right) => left.localeCompare(right)),
-  ];
+  return payload
+    .map((entry) => {
+      if (!entry.name) {
+        return null;
+      }
 
-  if (payload.truncated) {
-    lines.push("", "[output truncated by GitHub API]");
-  }
-
-  return lines;
+      return entry.type === "dir" ? `${entry.name}/` : entry.name;
+    })
+    .filter((entry): entry is string => entry !== null)
+    .sort((left, right) => left.localeCompare(right));
 };
