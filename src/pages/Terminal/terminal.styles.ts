@@ -5,9 +5,6 @@ export const TerminalWrapper = styled.div`
   color: #00ff00;
   font-family: "Courier New", monospace;
   font-size: 14px;
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
   padding: 20px;
   min-height: 100vh;
   border: 1px solid #333;
