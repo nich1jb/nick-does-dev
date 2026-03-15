@@ -7,28 +7,29 @@ import {
   TerminalLine,
   TerminalWrapper,
 } from "./terminal.styles";
-import { outputCommand } from "./helpers/outputCommand";
+import { outputCommand } from "../../helpers/outputCommand";
 
 export const TerminalPage = () => {
   const [history, setHistory] = useState<
     (string | string[] | React.ReactElement)[]
   >([]);
   const [currentInput, setCurrentInput] = useState("");
+  const [isAwaitingCommand, setIsAwaitingCommand] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (!isAwaitingCommand && inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [isAwaitingCommand]);
 
   useEffect(() => {
     scrollToBottom();
   }, [history]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      executeCommand(currentInput);
+    if (e.key === "Enter" && !isAwaitingCommand) {
+      void executeCommand(currentInput);
       setCurrentInput("");
     }
   };
@@ -39,23 +40,25 @@ export const TerminalPage = () => {
     }
   };
 
-  const executeCommand = (command: string) => {
-    const newHistory = [...history];
-    newHistory.push(`user@${window.location.hostname}:~$ ${command}`);
-
+  const executeCommand = async (command: string) => {
     const cmd = command.trim().toLowerCase();
+    const prompt = `user@${window.location.hostname}:~$ ${command}`;
 
-    const output = outputCommand(cmd, command, setHistory);
+    setHistory((previousHistory) => [...previousHistory, prompt]);
 
-    if (cmd === "clear") {
-      return;
+    setIsAwaitingCommand(true);
+
+    try {
+      const output = await outputCommand(cmd, command, setHistory);
+
+      if (cmd === "clear") {
+        return;
+      }
+
+      setHistory((previousHistory) => [...previousHistory, output]);
+    } finally {
+      setIsAwaitingCommand(false);
     }
-
-    if (output) {
-      newHistory.push(output);
-    }
-
-    setHistory(newHistory);
   };
 
   const renderLineContent = (
@@ -81,16 +84,20 @@ export const TerminalPage = () => {
             <div key={index}>{renderLineContent(line)}</div>
           ))}
         </History>
-        <span>user@{window.location.hostname}:~$&nbsp;</span>
-        <TerminalInput
-          ref={inputRef}
-          type="text"
-          value={currentInput}
-          onChange={(e) => setCurrentInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          autoComplete="off"
-          spellCheck="false"
-        />
+        {!isAwaitingCommand && (
+          <>
+            <span>user@{window.location.hostname}:~$&nbsp;</span>
+            <TerminalInput
+              ref={inputRef}
+              type="text"
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoComplete="off"
+              spellCheck="false"
+            />
+          </>
+        )}
       </TerminalContent>
     </TerminalWrapper>
   );

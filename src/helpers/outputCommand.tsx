@@ -1,11 +1,13 @@
-import AboutMe from "../../../components/AboutMe";
-import Contact from "../../../components/Contact";
-import Experience from "../../../components/Experience";
-import Skills from "../../../components/Skills";
-import VideoPlayer from "../../../components/VideoPlayer";
+import AboutMe from "../components/AboutMe";
+import Contact from "../components/Contact";
+import Experience from "../components/Experience";
+import Skills from "../components/Skills";
+import VideoPlayer from "../components/VideoPlayer";
+import { getRepositoryFileContents } from "./getRepositoryFileContents";
+import { getRepositoryTree } from "./getRepositoryTree";
 import { triggerSystemWipeEffect } from "./triggerSystemWipeEffect";
 
-export const outputCommand = (
+export const outputCommand = async (
   cmd: string,
   command: string,
   setHistory: React.Dispatch<React.SetStateAction<any[]>>,
@@ -36,6 +38,21 @@ export const outputCommand = (
       return <Experience />;
     case "contact":
       return <Contact />;
+    case "ls":
+      try {
+        return await getRepositoryTree();
+      } catch {
+        return "Unable to load the repository tree from GitHub right now.";
+      }
+    case cmd.match(/^cat\s+(.+)$/)?.input: {
+      const filePath = command.trim().match(/^cat\s+(.+)$/i)?.[1] ?? "";
+
+      try {
+        return await getRepositoryFileContents(filePath);
+      } catch {
+        return "Unable to load file contents from GitHub right now.";
+      }
+    }
     case "clear":
       setHistory([]);
       return "";
@@ -49,6 +66,8 @@ export const outputCommand = (
           title="Rick Astley - Never Gonna Give You Up"
         />
       );
+    case "konami":
+      return "↑ ↑ ↓ ↓ ← → ← → B A";
     case "":
       return "";
     default:

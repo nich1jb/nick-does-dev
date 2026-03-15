@@ -36,5 +36,5 @@ export const TerminalInput = styled.input`
 `;
 
 export const TerminalLine = styled.div`
-  white-space: pre;
+  white-space: pre-wrap;
 `;
