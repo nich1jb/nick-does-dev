@@ -45,7 +45,7 @@ export const TerminalPage = () => {
     }
   };
 
-  const handleInput = (e: React.FormEvent<HTMLSpanElement>) => {
+  const handleInput = (e: React.InputEvent<HTMLSpanElement>) => {
     setCurrentInput(e.currentTarget.textContent ?? "");
   };
 
@@ -97,8 +97,8 @@ export const TerminalPage = () => {
     <TerminalWrapper onClick={() => inputRef.current?.focus()}>
       <ScanlinesOverlay />
       <TerminalContent>
-        Type 'whoami' for some information about me. Additonally, type 'help'
-        for a list of commands.
+        Hey I'm Nick. Welcome to my terminal! Type 'whoami' for some information
+        about me. Additionally, type 'help' for a list of commands.
         <History>
           {history.map((line, index) => (
             <div key={index}>{renderLineContent(line)}</div>

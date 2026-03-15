@@ -21,6 +21,7 @@ Available commands include:
 - `contact` - contact links
 - `ls` - fetch and print the current repository tree from GitHub
 - `cat <file>` - fetch and print a file from GitHub
+- `cd <dir>` - navigate to the specified directory from GitHub
 - `date` - current date/time
 - `pwd` - current origin
 - `echo <text>` - echo text back
