@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, isValidElement } from "react";
 import ScanlinesOverlay from "../../components/ScanlinesOverlay";
 import {
   CommandLine,
+  Cursor,
   History,
   PromptText,
   TerminalContent,
@@ -109,6 +110,7 @@ export const TerminalPage = () => {
               onKeyDown={handleKeyDown}
               spellCheck={false}
             />
+            <Cursor />
           </CommandLine>
         )}
         <div ref={bottomRef} />

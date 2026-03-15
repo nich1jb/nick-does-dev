@@ -46,10 +46,31 @@ export const TerminalInput = styled.span`
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   outline: none;
+  caret-color: transparent;
 `;
 
 export const TerminalLine = styled.div`
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
+`;
+
+export const Cursor = styled.span`
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  background-color: #00ff00;
+  vertical-align: text-bottom;
+  margin-left: 1px;
+  animation: blink 1s step-start infinite;
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
 `;

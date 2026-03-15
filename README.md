@@ -26,7 +26,7 @@ Available commands include:
 - `echo <text>` - echo text back
 - `clear` - clear terminal output
 
-There is also some easter eggs command in the app :O
+There are also some easter eggs commands :O
 
 ## Getting started
 
