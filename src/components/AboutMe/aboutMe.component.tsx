@@ -3,16 +3,7 @@ import { TerminalImage } from "./aboutMe.styles";
 import { ToWords } from "to-words";
 
 export const AboutMe = () => {
-  const calculateAge = () => {
-    var birthDate = new Date("1994-03-18");
-    var ageDifMs = Date.now() - birthDate.getTime();
-    var ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  };
-
-  const age = calculateAge();
-  const toWords = new ToWords();
-  const yearsInIndustry = toWords
+  const yearsInIndustry = new ToWords()
     .convert(new Date().getFullYear() - 2016)
     .toLowerCase();
 
@@ -20,8 +11,8 @@ export const AboutMe = () => {
     <div>
       <TerminalImage src={meImage} alt="Nick's avatar" />
       <p>
-        Hi, I'm Nick (he/him), a {age}-year-old Senior Software Engineer with
-        over {yearsInIndustry} years of experience in the industry.
+        Hi, I'm Nick (he/him), a Senior Software Engineer with over{" "}
+        {yearsInIndustry} years of experience in the industry.
       </p>
       <p>
         Throughout my career, I've architected and delivered complex, scalable

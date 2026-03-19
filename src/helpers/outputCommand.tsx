@@ -38,6 +38,7 @@ const exactCommandHandlers: Record<string, ExactCommandHandler> = {
       " experience         Show my work experience",
       " contact            Show how to contact me",
       " clear              Clear the terminal",
+      " exit               Close this window",
       " roll               ???",
     ],
   }),
@@ -62,6 +63,10 @@ const exactCommandHandlers: Record<string, ExactCommandHandler> = {
   clear: () => ({
     output: "",
   }),
+  exit: () => {
+    window.close();
+    return { output: "" };
+  },
   "rm -rf /": () => {
     triggerSystemWipeEffect();
 
